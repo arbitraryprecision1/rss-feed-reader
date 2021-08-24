@@ -1,0 +1,21 @@
+version: '2'
+services:
+  rss-bridge:
+    volumes:
+      - ./whitelist.txt:/app/whitelist.txt
+      - /app/caches
+    build:
+      context: .
+    image: rssbridge/rss-bridge:latest
+    ports:
+      - 3000:80
+    restart: unless-stopped
+  next-service:
+    build: ./app
+    ports:
+      - "3030:3000" # for development only
+    volumes:
+      - ./app/components:/app/components # for development only
+      - ./app/pages:/app/pages # for development only
+      - ./app/public:/app/public # for development only
+      - ./app/styles:/app/styles # for development only
