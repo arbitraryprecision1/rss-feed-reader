@@ -4,9 +4,7 @@ services:
     volumes:
       - ./whitelist.txt:/app/whitelist.txt
       - /app/caches
-    build:
-      context: .
-    image: rssbridge/rss-bridge:latest
+    build: ./bridges
     ports:
       - 3000:80
     restart: unless-stopped
