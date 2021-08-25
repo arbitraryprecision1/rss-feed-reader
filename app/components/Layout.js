@@ -5,8 +5,10 @@ import NavComponent from "../components/Navbar.js"
 
 module.exports = class Layout extends React.Component {
   render() {
+    const blogs = ["a", "b"]; 
+
     return (
-          <div>
+          <>
             <Head>
               <title>title</title>
             </Head>
@@ -14,16 +16,16 @@ module.exports = class Layout extends React.Component {
             <Container class='container-fluid'>
               <Row>
                 <Col>
-                  <NavComponent />
+                  <NavComponent blogs={blogs} />
                 </Col>
                 <Col xs={8}>
-                  {this.props.mainComponent}
+                  {this.props.children}
                 </Col>
                 <Col>
                 </Col>
               </Row>
             </Container>
-          </div>
+          </>
         );
     }
 }

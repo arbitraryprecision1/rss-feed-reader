@@ -1,7 +1,9 @@
 import { Navbar, Nav, Container, NavDropdown, Dropdown, ListGroup } from 'react-bootstrap';
 import styles from '../styles/Navbar.module.css'
 
-export default function NavComponent() {
+export default function NavComponent({ hn, yt, reddit, twitter, blogs }) {
+  const bloglinks = blogs.map(b => (<Nav.Link eventKey="link-1">{b}</Nav.Link>));
+
   return (
     <Nav defaultActiveKey="/home" className="flex-column">
       <ListGroup variant='flush'>
@@ -40,9 +42,7 @@ export default function NavComponent() {
         <ListGroup.Item>
           <Nav.Item>Blogs</Nav.Item>
           <ul>
-            <Nav.Link eventKey="link-1">Link</Nav.Link>
-            <Nav.Link eventKey="link-1">Link</Nav.Link>
-            
+            {bloglinks}
           </ul>
         </ListGroup.Item>
       </ListGroup>

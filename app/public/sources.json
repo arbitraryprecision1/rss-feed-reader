@@ -1,0 +1,79 @@
+{
+    "blogs": [
+        {
+            "name": "jvns", 
+            "params": {
+                "action": "display",
+                "bridge": "FeedExpanderBridge",
+                "feeduri": "https://jvns.ca/atom.xml",
+                "format": "Json"
+            }
+        },
+        {
+            "name": "mathwithbaddrawings",
+            "params": {
+                "action": "display",
+                "bridge": "FeedExpanderBridge",
+                "feeduri": "https://mathwithbaddrawings.com/feed",
+                "format": "Json"
+            }
+        },
+        {
+            "name": "math3ma",
+            "params": {
+                "action": "display",
+                "bridge": "FeedExpanderBridge",
+                "feeduri": "https://www.math3ma.com/blog/rss.xml",
+                "format": "Json"
+            }
+        },
+        {
+            "name": "almostsure",
+            "params": {
+                "action": "display",
+                "bridge": "FeedExpanderBridge",
+                "feeduri": "https://almostsuremath.com/feed",
+                "format": "Json"
+            }
+        },
+        {
+            "name": "almostlookslikework",
+            "params": {
+                "action": "display",
+                "bridge": "FeedExpanderBridge",
+                "feeduri": "https://jasmcole.com/feed",
+                "format": "Json"
+            }
+        },
+        {
+            "name": "mathnprogramming",
+            "params": {
+                "action": "display",
+                "bridge": "FeedExpanderBridge",
+                "feeduri": "https://jeremykun.com/feed",
+                "format": "Json"
+            }
+        },
+        {
+            "name": "amsblogs",
+            "params": {
+                "action": "display",
+                "bridge": "FeedExpanderBridge",
+                "feeduri": "https://blogs.ams.org/blogonmathblogs/feed",
+                "format": "Json"
+            }
+        }
+    ],
+    "twitter": [
+        {
+            "name": "3b1b",
+            "params": {
+                "action": "display",
+                "bridge": "Twitter",
+                "context": "By+username",
+                "u": "3blue1brown",
+                "format": "Json"
+            } 
+        }
+    ]
+}

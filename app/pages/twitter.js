@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import GenericFeed from '../components/GenericFeed';
 import Layout from '../components/Layout'
 
-export default function threeb() {
+export default function Twitter() {
   const [data, setData] = useState({title: 'loading', items: [{author: {name: "loading"}}]});
 
   async function getJson() {
@@ -16,9 +16,7 @@ export default function threeb() {
 
   useEffect(() => getJson());
 
-  const p = (<GenericFeed data={data} />);
-
   return (
-    <Layout mainComponent={p} />
+    <GenericFeed data={data} />
   );
 }
