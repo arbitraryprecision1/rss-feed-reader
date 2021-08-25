@@ -10,3 +10,4 @@
 - ability to add groups and rss
 - send mail button to email all unread
 - stats? Usage? Save/bookmark items?
+- change reddit links to old.reddit
