@@ -6,15 +6,12 @@ services:
       - /app/caches
     build: ./bridges
     ports:
-      - 3000:80
+      - "3000:80"
     restart: unless-stopped
-  next-service:
+  server-service:
     build: ./app
     ports:
-      - "3030:3000" # for development only
+      - "8000:8000" # for development only
     volumes:
-      - ./app/components:/app/components # for development only
-      - ./app/pages:/app/pages # for development only
-      - ./app/public:/app/public # for development only
-      - ./app/styles:/app/styles # for development only
-      - ./app/lib:/app/lib # for development only
+      - ./app/db:/usr/src/app/db # for development only
+      - ./app/web:/usr/src/app/web # for development only
