@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+
+<html>
+    <body>
+        <ul>
+            {% for item in data %}
+
+            <li>[{{ item.2 }}]: <a href="{{ item.4 }}">{{ item.3 }}</a></li>
+
+            {% endfor %}
+        </ul>
+    </body>
+</html>
