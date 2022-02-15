@@ -1,7 +1,8 @@
+from selectors import EpollSelector
 import sqlite3
 import requests
 import datetime
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 app = Flask("app")
 
@@ -35,7 +36,7 @@ def create_db(cur):
             url TEXT,
             PRIMARY KEY (id),
             FOREIGN KEY (feed_id) REFERENCES feeds (id),
-            UNIQUE (date_posted, url)
+            UNIQUE (date_posted, url) ON CONFLICT IGNORE
         )
         '''
     )
@@ -48,11 +49,6 @@ def create_db(cur):
     #     ]
     # )
 
-def write_db(cur):
-    # get feeds that need updating
-    to_update = cur.execute("SELECT * FROM feeds WHERE latest_retrieval <= datetime('now', '-720 minutes')")
-
-
 
 @app.route("/")
 def hello_world():
@@ -61,9 +57,7 @@ def hello_world():
     # init db if not found
     create_db(cur)
 
-    write_db(cur)
-
-    rows = cur.execute("select * from feeds")
+    rows = cur.execute("select * from posts")
     name = [i for i in rows]
 
     con.commit()
@@ -83,19 +77,37 @@ def by_name(feedname):
     # if last retrieval was >=12h ago then run rssbridge and update db
     # else just use db
     # TODO: allow force retrieval elsewhere
-
-    elapsedtime = datetime.datetime.now() - datetime.datetime.strptime(feeddata[0][3], "%Y-%m-%d %H:%M:%S")
-    if (elapsedtime.days * 24 * 60 * 60 + elapsedtime.seconds) / 3600 >= 12:
+    
+    # elapsedtime = datetime.datetime.now() - datetime.datetime.strptime(feeddata[0][3], "%Y-%m-%d %H:%M:%S")
+    # if (elapsedtime.days * 24 * 60 * 60 + elapsedtime.seconds) / 3600 >= 12:
+    if [i for i in cur.execute("SELECT datetime(?) <= datetime('now', '-720 minutes')", [feeddata[0][3]])][0][0] == 1:
 
         # TODO: this will fail the unique constraint
-        
+
         data = get_rss(feeddata[0][2])
         for item in data:
             cur.execute("INSERT INTO posts VALUES (null,?,datetime(?),?,?)", [feeddata[0][0], item['date_modified'], item['title'], item['url']])
+            
+        # update the latest_retrieval for this feed
+        cur.execute("UPDATE feeds SET latest_retrieval = datetime('now') WHERE id=?", [feeddata[0][0]])
 
     posts = [ i for i in cur.execute("SELECT * FROM posts WHERE feed_id=?", [feeddata[0][0]]) ]
     
     con.commit()
     con.close()
     return render_template("feed.html", data=posts)
-    return render_template("feed.html", data=get_rss(feeddata[0][2]))
+
+@app.route("/feeds", methods=["GET", "POST"])
+def feeds():
+    con = sqlite3.connect("db/data.db")
+    cur = con.cursor()
+
+    if request.method == "GET":
+        return render_template("feeds.html", data=[ i for i in cur.execute("SELECT * FROM feeds") ])
+    
+    else:
+        cur.execute("INSERT INTO feeds VALUES (null,?,?,datetime(0))", [request.form['feedname'], request.form['feedparams']])
+
+        con.commit()
+        con.close()
+        return(str(request.form))
