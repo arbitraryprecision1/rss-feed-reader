@@ -1,5 +1,6 @@
 ## Info
 - If there are any issues with `docker-compose up` try `docker-compose pull` first
+    - to update the rss-bridge image do `docker image ls` then `docker pull` the rss-bridge image
 - localhost:3000 contains rss-bridge
 - localhost:8000 contains app
 - URI options can be provided 
@@ -8,7 +9,7 @@
 
 ## To-do
 - track read and unread
+- smarten up frontend
 - ability to add groups and rss
-- send mail button to email all unread
 - stats? Usage? Save/bookmark items?
 - change reddit links to old.reddit

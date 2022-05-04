@@ -1,4 +1,3 @@
-from selectors import EpollSelector
 import sqlite3
 import requests
 import datetime
@@ -18,11 +17,11 @@ def create_db(cur):
         '''
         CREATE TABLE IF NOT EXISTS feeds (
             id INTEGER, 
-            name TEXT, 
-            params TEXT, 
-            latest_retrieval DATETIME,
+            name TEXT NOT NULL, 
+            params TEXT NOT NULL, 
+            latest_retrieval DATETIME NOT NULL,
             PRIMARY KEY (id),
-            UNIQUE (params)
+            UNIQUE (params) ON CONFLICT IGNORE
         )
         '''
     )
@@ -31,15 +30,30 @@ def create_db(cur):
         CREATE TABLE IF NOT EXISTS posts (
             id INTEGER, 
             feed_id INTEGER, 
-            date_posted DATETIME, 
-            title TEXT, 
-            url TEXT,
+            date_posted DATETIME NOT NULL, 
+            title TEXT NOT NULL, 
+            url TEXT NOT NULL,
+            is_read INTEGER DEFAULT 0 NOT NULL,
+            is_bookmarked INTEGER DEFAULT 0 NOT NULL,
             PRIMARY KEY (id),
             FOREIGN KEY (feed_id) REFERENCES feeds (id),
-            UNIQUE (date_posted, url) ON CONFLICT IGNORE
+            UNIQUE (date_posted, url) ON CONFLICT IGNORE,
+            CHECK (is_read IN (0,1)),
+            CHECK (is_bookmarked IN (0,1))
         )
         '''
     )
+    # temp for updating existing table instead of creating new table
+    # cur.execute(
+    #     '''
+    #     ALTER TABLE posts ADD COLUMN is_read INTEGER DEFAULT 0 NOT NULL CHECK (is_read IN (0,1))
+    #     '''
+    # )
+    # cur.execute(
+    #     '''
+    #     ALTER TABLE posts ADD COLUMN is_bookmarked INTEGER DEFAULT 0 NOT NULL CHECK (is_bookmarked IN (0,1))
+    #     '''
+    # )
 
     # cur.execute(
     #     "INSERT INTO feeds VALUES (null,?,?,datetime('now'))", 
@@ -56,13 +70,14 @@ def hello_world():
     cur = con.cursor()
     # init db if not found
     create_db(cur)
-
-    rows = cur.execute("select * from posts")
-    name = [i for i in rows]
+    
+    need_updating = [i for i in cur.execute("select name from feeds where latest_retrieval <= datetime('now', '-720 minutes')")]
+    # TODO: join this with feeds to get name of feed next to post details
+    posts = [i for i in cur.execute("select * from posts order by date_posted desc")]
 
     con.commit()
     con.close()
-    return render_template("index.html", name=name, name2="test")
+    return render_template("index.html", posts=posts, updates=need_updating)
 
 @app.route("/<feedname>")
 def by_name(feedname):
@@ -74,24 +89,21 @@ def by_name(feedname):
     if len(feeddata) == 0: return "Error: feed '"+feedname+"' not recognised."
     if len(feeddata) > 1: return "Error: feed '"+feedname+"' is duplicated, reset the feeds list."
 
-    # if last retrieval was >=12h ago then run rssbridge and update db
+    # if last retrieval was >=12h ago or forceupdate set to true then run rssbridge and update db
     # else just use db
-    # TODO: allow force retrieval elsewhere
-    
-    # elapsedtime = datetime.datetime.now() - datetime.datetime.strptime(feeddata[0][3], "%Y-%m-%d %H:%M:%S")
-    # if (elapsedtime.days * 24 * 60 * 60 + elapsedtime.seconds) / 3600 >= 12:
-    if [i for i in cur.execute("SELECT datetime(?) <= datetime('now', '-720 minutes')", [feeddata[0][3]])][0][0] == 1:
+    if (request.args.get('forceupdate', default='false') == 'true'
+        or [i for i in cur.execute("SELECT datetime(?) <= datetime('now', '-720 minutes')", [feeddata[0][3]])][0][0] == 1):
 
         # TODO: this will fail the unique constraint
-
         data = get_rss(feeddata[0][2])
         for item in data:
+            # print(item)
             cur.execute("INSERT INTO posts VALUES (null,?,datetime(?),?,?)", [feeddata[0][0], item['date_modified'], item['title'], item['url']])
             
         # update the latest_retrieval for this feed
         cur.execute("UPDATE feeds SET latest_retrieval = datetime('now') WHERE id=?", [feeddata[0][0]])
 
-    posts = [ i for i in cur.execute("SELECT * FROM posts WHERE feed_id=?", [feeddata[0][0]]) ]
+    posts = [ i for i in cur.execute("SELECT * FROM posts WHERE feed_id=? order by date_posted desc", [feeddata[0][0]]) ]
     
     con.commit()
     con.close()
@@ -111,3 +123,14 @@ def feeds():
         con.commit()
         con.close()
         return(str(request.form))
+
+@app.route("/api/setpostread")
+def setPostRead():
+    con = sqlite3.connect("db/data.db")
+    cur = con.cursor()
+    
+    cur.execute("UPDATE posts SET is_read = 1 WHERE id=?", [request.args.get('postid')])
+
+    con.commit()
+    con.close()
+    return "ok"

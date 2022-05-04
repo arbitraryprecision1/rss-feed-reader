@@ -1,6 +1,16 @@
-<h1>test123</h1>
+<a href="/feeds">view and add feeds</a>
+<p>go to /[feedname] to view specific feed</p>
 
-<p id="info">loading</p>
+<h1>Latest</h1>
+<p>{{updates}} have not been updated recently. [update link]</p>
+<p>force update all feeds link</p>
 
-<p>{{name}}</p>
-<p>{{name2}}</p>
+<ul>
+    {% for item in posts %}
+
+    <li>[{{ item.2 }}]: <a href="{{ item.4 }}" id="{{ item.0 }}" class="postlink">{{ item.3 }}</a> | viewed? {{ item.5 }} | bookmarked? {{ item.6 }}</li>
+
+    {% endfor %}
+</ul>
+
+<script src="static/index.js"></script>

@@ -1,6 +1,6 @@
 FROM python:slim
 
-RUN apt update && apt upgrade && apt install sqlite3
+RUN apt update && apt -y upgrade && apt install sqlite3
 
 WORKDIR /usr/src/app
 
