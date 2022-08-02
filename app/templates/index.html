@@ -2,13 +2,19 @@
 <p>go to /[feedname] to view specific feed</p>
 
 <h1>Latest</h1>
-<p>{{updates}} have not been updated recently. [update link]</p>
-<p>force update all feeds link</p>
+
+<div id="toupdate">
+    <p>the following have not been updated recently</p>
+    {% for item in updates %}
+    <p>{{ item.0 }}</p>
+    {% endfor %}
+</div>
+<a href="#" id="updatelink">update them</a>
 
 <ul>
     {% for item in posts %}
 
-    <li>[{{ item.2 }}]: <a href="{{ item.4 }}" id="{{ item.0 }}" class="postlink">{{ item.3 }}</a> | viewed? {{ item.5 }} | bookmarked? {{ item.6 }}</li>
+    <li>[{{ item.2 }}]: ({{ item.7 }}) <a href="{{ item.4 }}" id="{{ item.0 }}" class="postlink">{{ item.3 }}</a> | viewed? {{ item.5 }} | bookmarked? {{ item.6 }}</li>
 
     {% endfor %}
 </ul>

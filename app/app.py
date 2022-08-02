@@ -72,8 +72,10 @@ def hello_world():
     create_db(cur)
     
     need_updating = [i for i in cur.execute("select name from feeds where latest_retrieval <= datetime('now', '-720 minutes')")]
-    # TODO: join this with feeds to get name of feed next to post details
-    posts = [i for i in cur.execute("select * from posts order by date_posted desc")]
+    posts = [i for i in cur.execute(
+        "select posts.id,posts.feed_id,posts.date_posted,posts.title,posts.url,posts.is_read,posts.is_bookmarked,feeds.name " + 
+        "from posts join feeds on posts.feed_id = feeds.id order by date_posted desc"
+    )]
 
     con.commit()
     con.close()
@@ -98,7 +100,7 @@ def by_name(feedname):
         data = get_rss(feeddata[0][2])
         for item in data:
             # print(item)
-            cur.execute("INSERT INTO posts VALUES (null,?,datetime(?),?,?)", [feeddata[0][0], item['date_modified'], item['title'], item['url']])
+            cur.execute("INSERT INTO posts VALUES (null,?,datetime(?),?,?,0,0)", [feeddata[0][0], item['date_modified'], item['title'], item['url']])
             
         # update the latest_retrieval for this feed
         cur.execute("UPDATE feeds SET latest_retrieval = datetime('now') WHERE id=?", [feeddata[0][0]])

@@ -2,8 +2,6 @@
 
 <html>
     <body>
-        <p>{{data}}</p>
-
         <form method="post">
             <label for="feedname">Feed name:</label>
             <input type="text" id="feedname" name="feedname">
@@ -11,5 +9,13 @@
             <input type="text" id="feedparams" name="feedparams">
             <input type="submit" value="Submit">
         </form>
+        
+        <ul>
+           {% for item in data %} 
+           
+           <li>{{ item.0 }} | <a href="/{{ item.1 }}">{{ item.1 }}</a> | last update [{{ item.3 }}] | {{ item.2 }}</li>
+           
+           {% endfor %}
+        </ul>
     </body>
 </html>
