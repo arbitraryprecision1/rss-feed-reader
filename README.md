@@ -8,8 +8,10 @@
     - specific params for a bridge found under PARAMETERS in php files in https://github.com/RSS-Bridge/rss-bridge/tree/master/bridges
 
 ## To-do
-- track read and unread
+- [x] track read and unread
 - smarten up frontend
 - ability to add groups and rss
 - stats? Usage? Save/bookmark items?
 - change reddit links to old.reddit
+- how to delete a feed - option to delete all past entries or keep them?
+- often requires reloading or pressing back leads to stale pages - fix this

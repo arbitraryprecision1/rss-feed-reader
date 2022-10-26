@@ -1,6 +1,8 @@
 import sqlite3
 import requests
 import datetime
+import traceback
+import sys
 from flask import Flask, render_template, request
 
 app = Flask("app")
@@ -99,9 +101,27 @@ def by_name(feedname):
         # TODO: this will fail the unique constraint
         data = get_rss(feeddata[0][2])
         for item in data:
-            # print(item)
-            cur.execute("INSERT INTO posts VALUES (null,?,datetime(?),?,?,0,0)", [feeddata[0][0], item['date_modified'], item['title'], item['url']])
-            
+            # handle issues from the rss query
+            # TODO: some hackernews posts do not link to an article so have no 'url' param, in this case 
+            #       should link to the comments?
+            try:
+                queryparams = [feeddata[0][0], item['date_modified'], item['title'], item['url']]
+            except KeyError as e:
+                print(e, file=sys.stderr)
+                print(traceback.format_exc(), file=sys.stderr)
+                print(item, file=sys.stderr)
+                break
+
+            # handle issues from the db
+            try:
+                cur.execute("INSERT INTO posts VALUES (null,?,datetime(?),?,?,0,0)", queryparams)
+            except sqlite3.Error as e:
+                print(e, file=sys.stderr)
+                print(traceback.format_exc(), file=sys.stderr)
+                print(queryparams, file=sys.stderr)
+                break
+
+
         # update the latest_retrieval for this feed
         cur.execute("UPDATE feeds SET latest_retrieval = datetime('now') WHERE id=?", [feeddata[0][0]])
 
